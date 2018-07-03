@@ -207,8 +207,3 @@ data.final <- rename(combined2, p = p_fear_fdr_round_signif, t = tJLF_round)
 
 #Save as a .csv
 write.csv(data.final, file="/data/jux/BBL/projects/pncT1AcrossDisorder/subjectData/n1394_T1_JLFforITK.csv", row.names=F, quote=F)
-
-#####################################
-#### SAVE RESIDUALS FOR PLOTTING ####
-#####################################
-
