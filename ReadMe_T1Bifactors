@@ -1,0 +1,82 @@
+## Data preparation 
+Use the script `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/DataPrep_T1Bifactors.R` to preprocess the data. The script will:
+* Load all data files.
+* Transform age from months to years and define age squared.
+* Recode male as 0 and female as 1 and make sex a factor.
+* Define a dichotomous race variable (white=1, non-white=0) and make it a factor.
+* Remove redundant variables.
+* Prep the Jacobian and Ravens (18 components) files for merging.
+* Create lobe variables.
+* Merge the data files.
+* Exclude based on healthExcludev2 and t1Exclude (and calculate how many are missing at each step).
+* Exclude those missing clinical data.
+* Calculate how many were on psychiatric psychotropic medications at the time of scanning.
+* Define the psychopathology screening diagnoses (1=diagnosis, 0=typically developing).
+* Create summary diagnostic variables for the anxious-misery disorders, psychotic disorders, behavioral disorders, fear disorders, and all disorders).
+* Save the subject level data in a .rds file.
+* Exclude those on psychiatric psychotropic meds and save as a separate data file for sensitivity analyses.
+
+## NMF analyses for CT data 
+Please see the NMF wiki: https://github.com/PennBBL/pncNMF/wiki
+
+## GAM analyses 
+Use the script `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/GamAnalyses_T1Bifactors_ctNMF.R` to run the GAM analyses. The script analyzes which cortical thickness NMF networks are significantly associated with the fear dimension of the bifactor model. It will:
+* Load the subject data (n=1394). 
+* Run separate GAM models for each of the 18 NMF components.  
+`NMF component ~ spline(age) + sex + average manual rating + mood + psychosis + externalizing + fear + overall psychopathology`
+* Pull the p-values for each psychopathology variable (mood, psychosis, externalizing, fear, overall psychopathology).
+* Generate FDR-corrected p-values.
+
+The results from this script were reported in Table 2. 
+* `Nmf_fear_fdr` : lists the NMF components that survive FDR correction.
+* `fear_coeff` : prints the model summaries for the significant NMF networks.  
+     - Under "Formula," you can check which network component is of interest for that table.  
+     - Under the "Parametric Coefficients" section, use the row "phobia_4factorsv2" to get the B ("Estimate"), SE ("Std. Error"), and t values (round to the nearest hundredth).  
+     - We don't get p-values from here because we need FDR-corrected p-values.  
+* `p_fear_fdr_round` : prints FDR-corrected p-values rounded to the thousandth.
+
+## Sensitivity analyses
+Use the script `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/GamAnalyses_T1Bifactors_ctNMF_combined.R` to run the sensitivity analyses. The script analyses which cortical thickness NMF networks are significantly associated with the fear dimension of the bifactor model, after taking into account 1. maternal level of education, 2. total brain volume, 3. a no psychiatric medication sample. It will:
+* Load the preprocessed subject data (n=1239, uses a no psychiatric psychotropic medication sample).
+* Run separate GAM models for each of the 18 NMF components.  
+`NMF component ~ spline(age) + sex + average manual rating + maternal level of education + total brain volume + mood + psychosis + externalizing + fear + overall psychopathology`
+* Pull the p-values for each psychopathology variable (mood, psychosis, externalizing, fear, overall psychopathology).
+* Generate FDR-corrected p-values.
+
+The results from this script were reported in Supplemental Table 1.
+* `Nmf_fear_fdr` : lists the NMF components that survive FDR correction.
+* `models` : prints the model summaries for all 18 NMF networks.  
+     - Under "Formula," you can check which network component is of interest for that table.  
+     - Under the "Parametric Coefficients" section, use the row "phobia_4factorsv2" to get the B ("Estimate"), SE ("Std. Error"), and t values (round to the nearest hundredth).  
+* `p_fear_fdr_round` : prints FDR-corrected p-values rounded to the thousandth.
+
+## Demographics
+Use the script `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/Demographics.R` to obtain the demographics for Table 1. Demographics include:
+* Mean, standard deviation, and range of age.
+* Number of males and females.
+* Number of Caucasians and non-Caucasians.
+* Number of participants in each category of maternal level of education (<12 years education, >12 years education, missing).
+* Lifetime prevalence of psychiatric disorders.
+* Percentages on psychiatric medications.
+
+## Figures and Scatterplots
+Use the scripts `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/Figure_BifactorsByDiagnoses.R` and `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/Figure_CorrTraitsByDiagnoses.R` to make the bifactor or correlated traits by diagnosis figures. The scripts will:  
+* Load the subject level data.
+* Create a table of means and standard deviations for each psychopathology factor (e.g., mood, psychosis, externalizing, fear, overall psychopathology) and for each diagnostic screening category.
+* Plot the values as a bar plot in ggplot.
+* Save the figure as a .png file in `/data/jux/BBL/projects/pncT1AcrossDisorder/TablesFigures`
+
+Use the script `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/Scatterplots.R` to make scatterplots of cortical thickness by fear. The script will:  
+* Load the subject level data and the necessary libraries. 
+* Run the gam model.
+* Use visreg to pass the model information to ggplot for graphing. 
+* `NmfModels[[16]]` specifies which NMF component model I plotted (in this case, NMF component 16).  
+* Save the figure as a .png file in `/data/jux/BBL/projects/pncT1AcrossDisorder/TablesFigures`
+
+## NMF components as predictors of Fear
+Use the script `/data/jux/BBL/projects/pncT1AcrossDisorder/scripts/scripts_final/NmfPredictsFear_T1Bifactors.R` to test whether NMF components provide predictive power above and beyond demographics info only. This script will:
+* Load the subject level data.
+* Run a predictive model in the form: `Fear = age + sex + 18 NMF components`
+* Run a null model in the form: `Fear = age + sex` 
+* Plot predicted fear scores vs actual fear scores.
+* Save the figure as a .jpg file in `/data/jux/BBL/projects/pncT1AcrossDisorder/TablesFigures`
